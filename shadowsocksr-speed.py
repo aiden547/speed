@@ -342,6 +342,19 @@ def connect_ssr(ssr):
                 else:
                     result['icbc'] = 0
                     result['state'] = "Fail"
+
+            if test_option['cmb']:
+                start = time.time()
+                r = requests.get('http://www.cmbchina.com', timeout=15)
+                if r.status_code == 200:
+                    end = time.time()
+                    print("cmb_test:", (end - start) * 1000)
+                    t = end - start
+                    result['cmb'] = int(round(t * 1000))
+                    result['state'] = "Success"
+                else:
+                    result['cmb'] = 0
+                    result['state'] = "Fail"
         return result
 
     except Exception as e:

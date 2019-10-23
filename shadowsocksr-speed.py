@@ -6,7 +6,6 @@ import time
 import requests
 import ParseSsr #https://www.jianshu.com/p/81b1632bea7f
 import re
-import abc_speed
 from prettytable import PrettyTable
 from colorama import init, Fore, Back, Style
 
@@ -19,7 +18,7 @@ import socks
 default_socket = socket.socket
 
 test_option={}
-test_option ['ping']=test_option ['network']=test_option ['speed']= test_option ['abc']=False
+test_option ['ping']=test_option ['network']=test_option ['speed']= test_option ['abc']= test_option ['icbc']=False
 max_cols=0
 # 访问 abc 网页加载时间大于设置时间直接退出不进行测速.解决高延迟的节点加载网页太慢问题
 abc_timeout=10
@@ -51,11 +50,13 @@ class DrawTable(object):
         "upload",
         "download",
         "abc",
+        "icbc"
         "network"
         ]
         self.x = PrettyTable(header)
         self.x.reversesort = True
         self.x.sortby = "abc"
+        self.x.sortby = "icbc"
 
     def append(self,*args,**kwargs):
         if(kwargs):
@@ -71,6 +72,7 @@ class DrawTable(object):
                 kwargs['upload'],
                 kwargs['download'],
                 kwargs['abc'],
+                kwargs['icbc'],
                 kwargs['network'],
             ]
             self.x.add_row(content)
@@ -145,7 +147,7 @@ def TestOption(screen):
                 if test_select[3]:
                     test_option['abc'] = True
                 if Option==0:
-                    test_option['abc'] = test_option['ping'] = test_option['speed'] = test_option['network'] =True
+                    test_option['abc'] = test_option['ping'] = test_option['speed'] = test_option['network'] = test_option['icbc'] =True
                 break
             if key in [32, curses.KEY_RIGHT,curses.KEY_LEFT]:
                 if(Option!=0):
@@ -247,6 +249,7 @@ def connect_ssr(ssr):
   result['ping']=0
   result['ping_pc']=0
   result['abc']=0
+  result['icbc'] = 0
   result['state']="Fail"
   try:
     if not ssr['select']:
@@ -312,6 +315,25 @@ def connect_ssr(ssr):
         else:
             result['abc'] = 0
             result['state'] = "Fail"
+
+        if test_option['icbc']:
+            # socket.socket=default_socket
+            # abc=abc_speed.test_speed(port,abc_timeout)
+            # abc=int(re.sub("\D", "", abc))
+            start = time.time()
+            r = requests.get('http://www.icbc.com.cn/icbc/', timeout=15)
+            if r.status_code == 200:
+                end = time.time()
+                print("end - start")
+                print(end - start)
+                print("icbc_test:", (end - start) * 1000)
+                t = end - start
+                result['rcbc'] = int(round(t * 1000))
+                # print("abc_test,speed:",abc)
+                result['state'] = "Success"
+            else:
+                result['icbc'] = 0
+                result['state'] = "Fail"
     return result
 
   except Exception as e:
@@ -357,6 +379,7 @@ for s in ssr_config:
         upload=speed_result['upload'],
         download=speed_result['download'],
         abc=speed_result['abc'],
+        icbc=speed_result['icbc'],
         network=speed_result['state']
     )
   print(table.str())                                                                                                      

@@ -4,8 +4,9 @@ import base64
 import os
 import time
 import requests
-import ParseSsr  # https://www.jianshu.com/p/81b1632bea7f
+import ParseSsr #https://www.jianshu.com/p/81b1632bea7f
 import re
+import abc_speed
 from prettytable import PrettyTable
 from colorama import init, Fore, Back, Style
 
@@ -117,8 +118,8 @@ def TestOption(screen):
             menuitem+=1
         for s in test_select:
             if s:
-                screen.addstr(selectitem + 3, 2, "*")
-            selectitem += 1
+                screen.addstr(selectitem+3, 2,"*")
+            selectitem+=1
         screen.refresh()
 
         key = screen.getch()
@@ -154,56 +155,55 @@ def SelectTable(screen):
     select_table=DrawSelectTable()
     # ssr_config=getss()
     for x in ssr_config:
-        x['select'] = 1
-        # select_table.append(select=x['select'],name=x['remarks'])
-        select_table.append(select=x['select'], name='testremarks')
+        x['select']=1
+        select_table.append(select=x['select'],name=x['remarks'])
     # print(table)
     help_string1 = 'W(up) S(down)'  'A(select) D(right)'
     help_string2 = 'R(Reverse selection) Q(exit) '
     help_string3 = 'Enter(finish)'
-    table_x = 4
-    table_y = 0
-    table_line = 100
-    table_cols = max_cols + 30
-    if (term_col < table_cols):
-        print("[x] Resize the terminal window more than %s" % table_cols)
-        print("[x] Current size %dx%d" % (term_col, term_lines))
+    table_x=4
+    table_y=0
+    table_line=100
+    table_cols=max_cols+30
+    if(term_col<table_cols):
+        print ("[x] Resize the terminal window more than %s"  % table_cols )
+        print ("[x] Current size %dx%d" % (term_col, term_lines))
         os._exit(0)
 
-    ss_select_x = 3
-    ss_select = 3
-    max_select = len(ssr_config) + 3 - 1
-    max_line = term_lines - 1 if term_lines - 1 < max_select + 3 else max_select + 2
+    ss_select_x=3
+    ss_select=3
+    max_select=len(ssr_config)+3-1
+    max_line=term_lines -1 if term_lines -1 < max_select + 3 else max_select+2
     # print(max_line)
     # while True:
     #   pass
     # print(len(ssr_config))
     while True:
         try:
-            if ss_select < ss_select_x: ss_select = ss_select_x
-            if ss_select > max_select: ss_select = max_select
+            if ss_select < ss_select_x : ss_select=ss_select_x
+            if ss_select > max_select : ss_select=max_select
 
             screen.clear()
-            select_x = ss_select if ss_select < max_line else max_line - 1
-            screen.addstr(int(select_x), 1, str("->"))
+            select_x=ss_select if ss_select < max_line else max_line -1
+            screen.addstr(int(select_x),1,str("->"))
             screen.refresh()
 
             tpad = curses.newpad(table_line, table_cols)
             tpad.scrollok(1)
             tpad.idlok(1)
             tpad.addstr(select_table.str())
-            if ss_select >= max_line:
-                move_x = ss_select - max_line + 1
-            else:
-                move_x = 0
-            tpad.refresh(move_x, 0, table_y, table_x, max_line, table_cols)
+            if ss_select >= max_line :
+                move_x= ss_select - max_line +1
+            else :
+                move_x= 0
+            tpad.refresh(move_x,0,table_y,table_x,max_line,table_cols)
             key = screen.getch()
             if key in [curses.KEY_UP, ord('w'),
-                       curses.KEY_DOWN, ord('s'),
-                       curses.KEY_LEFT, ord('a'),
-                       curses.KEY_RIGHT, ord('d'),
-                       ord('g'), ord('G'), ord('0'),
-                       ord('r'), ord('q'), 10, 32]:
+                curses.KEY_DOWN, ord('s'),
+                curses.KEY_LEFT, ord('a'),
+                curses.KEY_RIGHT, ord('d'),
+                ord('g'), ord('G'), ord('0'),
+                ord('r'), ord('q'),10,32]:
                 if key in [ord('w'), curses.KEY_UP]:
                     ss_select -= 1
                 if key in [ord('s'), curses.KEY_DOWN]:
@@ -216,15 +216,15 @@ def SelectTable(screen):
                     return ssr_config
                     break
                 if key == ord('r'):
-                    select_table = DrawSelectTable()
+                    select_table=DrawSelectTable()
                     for x in ssr_config:
-                        x['select'] = not x['select']
-                        select_table.append(select=x['select'], name=x['remarks'])
-                if key in [32, curses.KEY_RIGHT, curses.KEY_LEFT]:
-                    ssr_config[ss_select - ss_select_x]['select'] = not ssr_config[ss_select - ss_select_x]['select']
-                    select_table = DrawSelectTable()
+                        x['select']= not x['select']
+                        select_table.append(select=x['select'],name=x['remarks'])
+                if key in [32, curses.KEY_RIGHT,curses.KEY_LEFT]:
+                    ssr_config[ss_select-ss_select_x]['select']= not ssr_config[ss_select-ss_select_x]['select']
+                    select_table=DrawSelectTable()
                     for x in ssr_config:
-                        select_table.append(select=x['select'], name=x['remarks'])
+                        select_table.append(select=x['select'],name=x['remarks'])
         except (KeyboardInterrupt, SystemExit):
             sys.exit("Goodbye!")
 
@@ -294,12 +294,15 @@ def connect_ssr(ssr):
         print("speed_test,ping:%s,download:%s,upload:%s" % (result['ping'],result['download'],result['upload']))
 
     if test_option['abc']:
-        socket.socket=default_socket
-        abc=abc_speed.test_speed(port,abc_timeout)
-        abc=int(re.sub("\D", "", abc))
-        result['abc']=abc
-        print("abc_test,speed:",abc)
-    result['state']="Success"
+        # socket.socket=default_socket
+        # abc=abc_speed.test_speed(port,abc_timeout)
+        # abc=int(re.sub("\D", "", abc))
+        abc = requests.get('http://www.abchina.com/cn/', timeout=15).text
+
+        print("abc_test:", abc)
+        #result['abc']=abc
+        #print("abc_test,speed:",abc)
+        result['state']="Success"
     return result
 
   except Exception as e:
@@ -347,4 +350,4 @@ for s in ssr_config:
         abc=speed_result['abc'],
         network=speed_result['state']
     )
-  print(table.str())
+  print(table.str())                                                                                                      

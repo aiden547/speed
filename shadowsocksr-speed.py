@@ -4,7 +4,7 @@ import base64
 import os
 import time
 import requests
-import ParseSsr #https://www.jianshu.com/p/81b1632bea7f
+import ParseSsr  # https://www.jianshu.com/p/81b1632bea7f
 import re
 from prettytable import PrettyTable
 from colorama import init, Fore, Back, Style
@@ -41,30 +41,33 @@ class colored(object):
 
 class DrawTable(object):
     def __init__(self):
-        self.table=[]
-        header=[
-        "name",
-        "ip",
-        "localPing",
-        "ping",
-        "upload",
-        "download",
-        "abc",
-        "icbc"
-        "network"
+        self.table = []
+        header = [
+            "name",
+            "ip",
+            "localPing",
+            "ping",
+            "upload",
+            "download",
+            "abc",
+            "ccb",
+            "icbc",
+            "cmb",
+            "ceb",
+            "boc",
+            "cmbc",
+            "network"
         ]
         self.x = PrettyTable(header)
         self.x.reversesort = True
         self.x.sortby = "abc"
-        #self.x.sortby = "icbc"
 
-    def append(self,*args,**kwargs):
-        if(kwargs):
-            color=colored()
-            kwargs['network'] = color.greed(kwargs['network']) if kwargs['network']=="Success" else color.red(kwargs['network'])
-            kwargs['network'] = color.greed(kwargs['network']) if kwargs['abc']!=1 else color.red("timeout") if kwargs['abc']!=1 else color.red("timeout")
-            # kwargs['abc'] = kwargs['abc'] if kwargs['abc'] !=1 else color.red("timeout")
-            content=[
+    def append(self, *args, **kwargs):
+        if (kwargs):
+            color = colored()
+            kwargs['network'] = color.greed(kwargs['network']) if kwargs['network'] == "Success" else color.red(
+                kwargs['network'])
+            content = [
                 kwargs['name'],
                 kwargs['ip'],
                 kwargs['localPing'],
@@ -72,29 +75,38 @@ class DrawTable(object):
                 kwargs['upload'],
                 kwargs['download'],
                 kwargs['abc'],
+                kwargs['ccb'],
                 kwargs['icbc'],
+                kwargs['cmb'],
+                kwargs['ceb'],
+                kwargs['boc'],
+                kwargs['cmbc'],
                 kwargs['network'],
             ]
             self.x.add_row(content)
+
     def str(self):
         return str(self.x)
+
+
 class DrawSelectTable(object):
     def __init__(self):
-        self.table=[]
-        header=[
-        "select",
-        "name"
+        self.table = []
+        header = [
+            "select",
+            "name"
         ]
         self.x = PrettyTable(header)
-    def append(self,*args,**kwargs):
+
+    def append(self, *args, **kwargs):
         global max_cols
-        if(kwargs):
+        if (kwargs):
             kwargs['select'] = "√" if kwargs['select'] else "×"
-            kwargs['name']=kwargs['name'].split()[0]
-            #获取名字,长度大于窗口分辨率进行报错
-            if len(kwargs['name'])> max_cols:
-                max_cols= len(kwargs['name'])
-            content=[
+            kwargs['name'] = kwargs['name'].split()[0]
+            # 获取名字,长度大于窗口分辨率进行报错
+            if len(kwargs['name']) > max_cols:
+                max_cols = len(kwargs['name'])
+            content = [
                 kwargs['select'],
                 kwargs['name'],
             ]
@@ -103,25 +115,26 @@ class DrawSelectTable(object):
         return str(self.x)
 
 def TestOption(screen):
-    Option=0
-    menubar = ["1 - All Test", "2 - Ping", "3 - Network", "4 - Speed", "5 - Abc", "5 - Icbc"]
-    test_select=[0,0,0,0]
-    menu_len=len(menubar)
+    Option = 0
+    menubar = ["1 - All Test", "2 - Ping", "3 - Network", "4 - Speed", "5 - abc", "6 - ccb", "7 - icbc", "8 - cmb",
+               "9 - ceb", "10 - boc", "11 - cmbc"]
+    test_select = [0, 0, 0, 0, 0, 0]
+    menu_len = len(menubar)
     while True:
-        Option = 0 if Option<0 else Option
-        Option = menu_len -1 if Option > menu_len-1 else Option
+        Option = 0 if Option < 0 else Option
+        Option = menu_len - 1 if Option > menu_len - 1 else Option
         screen.clear()
         menuitem = selectitem = 0
         for m in menubar:
             if Option == menuitem:
-                screen.addstr(menuitem+2, 4,m , curses.A_REVERSE)
+                screen.addstr(menuitem + 2, 4, m, curses.A_REVERSE)
             else:
-                screen.addstr(menuitem+2, 4, m)
-            menuitem+=1
+                screen.addstr(menuitem + 2, 4, m)
+            menuitem += 1
         for s in test_select:
             if s:
-                screen.addstr(selectitem+3, 2,"*")
-            selectitem+=1
+                screen.addstr(selectitem + 3, 2, "*")
+            selectitem += 1
         screen.refresh()
 
         key = screen.getch()
@@ -149,57 +162,57 @@ def TestOption(screen):
                 if Option==0:
                     test_option['abc'] = test_option['ping'] = test_option['speed'] = test_option['network'] = test_option['icbc'] =True
                 break
-            if key in [32, curses.KEY_RIGHT,curses.KEY_LEFT]:
-                if(Option!=0):
-                    test_select[Option-1]= not test_select[Option-1]
+            if key in [32, curses.KEY_RIGHT, curses.KEY_LEFT]:
+                if (Option != 0):
+                    test_select[Option - 1] = not test_select[Option - 1]
 
 def SelectTable(screen):
-    select_table=DrawSelectTable()
+    select_table = DrawSelectTable()
     # ssr_config=getss()
     for x in ssr_config:
-        x['select']=1
-        #select_table.append(select=x['select'],name=x['remarks'])
+        x['select'] = 1
+        # select_table.append(select=x['select'],name=x['remarks'])
         select_table.append(select=x['select'], name='testremarks')
     # print(table)
     help_string1 = 'W(up) S(down)'  'A(select) D(right)'
     help_string2 = 'R(Reverse selection) Q(exit) '
     help_string3 = 'Enter(finish)'
-    table_x=4
-    table_y=0
-    table_line=100
-    table_cols=max_cols+30
-    if(term_col<table_cols):
-        print ("[x] Resize the terminal window more than %s"  % table_cols )
-        print ("[x] Current size %dx%d" % (term_col, term_lines))
+    table_x = 4
+    table_y = 0
+    table_line = 100
+    table_cols = max_cols + 30
+    if (term_col < table_cols):
+        print("[x] Resize the terminal window more than %s" % table_cols)
+        print("[x] Current size %dx%d" % (term_col, term_lines))
         os._exit(0)
 
-    ss_select_x=3
-    ss_select=3
-    max_select=len(ssr_config)+3-1
-    max_line=term_lines -1 if term_lines -1 < max_select + 3 else max_select+2
+    ss_select_x = 3
+    ss_select = 3
+    max_select = len(ssr_config) + 3 - 1
+    max_line = term_lines - 1 if term_lines - 1 < max_select + 3 else max_select + 2
     # print(max_line)
     # while True:
     #   pass
     # print(len(ssr_config))
     while True:
         try:
-            if ss_select < ss_select_x : ss_select=ss_select_x
-            if ss_select > max_select : ss_select=max_select
+            if ss_select < ss_select_x: ss_select = ss_select_x
+            if ss_select > max_select: ss_select = max_select
 
             screen.clear()
-            select_x=ss_select if ss_select < max_line else max_line -1
-            screen.addstr(int(select_x),1,str("->"))
+            select_x = ss_select if ss_select < max_line else max_line - 1
+            screen.addstr(int(select_x), 1, str("->"))
             screen.refresh()
 
             tpad = curses.newpad(table_line, table_cols)
             tpad.scrollok(1)
             tpad.idlok(1)
             tpad.addstr(select_table.str())
-            if ss_select >= max_line :
-                move_x= ss_select - max_line +1
-            else :
-                move_x= 0
-            tpad.refresh(move_x,0,table_y,table_x,max_line,table_cols)
+            if ss_select >= max_line:
+                move_x = ss_select - max_line + 1
+            else:
+                move_x = 0
+            tpad.refresh(move_x, 0, table_y, table_x, max_line, table_cols)
             key = screen.getch()
             if key in [curses.KEY_UP, ord('w'),
                 curses.KEY_DOWN, ord('s'),
@@ -219,15 +232,15 @@ def SelectTable(screen):
                     return ssr_config
                     break
                 if key == ord('r'):
-                    select_table=DrawSelectTable()
+                    select_table = DrawSelectTable()
                     for x in ssr_config:
-                        x['select']= not x['select']
-                        select_table.append(select=x['select'],name=x['remarks'])
-                if key in [32, curses.KEY_RIGHT,curses.KEY_LEFT]:
-                    ssr_config[ss_select-ss_select_x]['select']= not ssr_config[ss_select-ss_select_x]['select']
-                    select_table=DrawSelectTable()
+                        x['select'] = not x['select']
+                        select_table.append(select=x['select'], name=x['remarks'])
+                if key in [32, curses.KEY_RIGHT, curses.KEY_LEFT]:
+                    ssr_config[ss_select - ss_select_x]['select'] = not ssr_config[ss_select - ss_select_x]['select']
+                    select_table = DrawSelectTable()
                     for x in ssr_config:
-                        select_table.append(select=x['select'],name=x['remarks'])
+                        select_table.append(select=x['select'], name=x['remarks'])
         except (KeyboardInterrupt, SystemExit):
             sys.exit("Goodbye!")
 
@@ -240,111 +253,111 @@ def isIP(str):
         return False
 
 def connect_ssr(ssr):
-  result={}
-  result['host']=ssr['server']
-  result['remarks']=ssr['remarks']
-  result['ip']=''
-  result['download']=0
-  result['upload']=0
-  result['ping']=0
-  result['ping_pc']=0
-  result['abc']=0
-  result['icbc']=0
-  result['state']="Fail"
-  try:
-    if not ssr['select']:
-        # print ("ss_pass")
-        result['state']="pass"
-        return result
-    port="6667"
-    cmd="python shadowsocksr/shadowsocks/local.py -qq -s %s -p %s -k %s -m %s -O %s -o %s -b %s -l %s " % (ssr['server'],ssr['port'],ssr['password'],ssr['method'],ssr['protocol'],ssr['obfs'],"127.0.0.1",port)
-    if(len(ssr.get('protoparam',""))>1):
-        cmd+="-G %s " % ssr['protoparam']
-    if(len(ssr.get('obfsparam',""))>1):
-        cmd+="-g %s " % ssr['obfsparam']
-    os.system(cmd + " -d stop")
-    os.system(cmd + " -d start")
-    print(ssr['remarks']+"/"+ssr['server'])
+    result = {}
+    result['host'] = ssr['server']
+    result['remarks'] = ssr['remarks']
+    result['ip'] = ''
+    result['download'] = 0
+    result['upload'] = 0
+    result['ping'] = 0
+    result['ping_pc'] = 0
+    result['abc'] = 0
+    result['ccb'] = 0
+    result['icbc'] = 0
+    result['cmb'] = 0
+    result['ceb'] = 0
+    result['boc'] = 0
+    result['cmbc'] = 0
+    # result['abc']=0
+    result['state'] = "Fail"
+    try:
+        if not ssr['select']:
+            # print ("ss_pass")
+            result['state'] = "pass"
+            return result
+        port = "6667"
+        cmd = "python shadowsocksr/shadowsocks/local.py -qq -s %s -p %s -k %s -m %s -O %s -o %s -b %s -l %s " % (
+        ssr['server'], ssr['port'], ssr['password'], ssr['method'], ssr['protocol'], ssr['obfs'], "127.0.0.1", port)
+        if (len(ssr.get('protoparam', "")) > 1):
+            cmd += "-G %s " % ssr['protoparam']
+        if (len(ssr.get('obfsparam', "")) > 1):
+            cmd += "-g %s " % ssr['obfsparam']
+        os.system(cmd + " -d stop")
+        os.system(cmd + " -d start")
+        print(ssr['remarks'] + "/" + ssr['server'])
+        print("test_option")
+        print(test_option)
+        if test_option['ping']:
+            ping_len = "7" if isIP(result['host']) else "8"
+            cmd = "ping -c 5 %s |grep 'time=' | awk '{print $%s}' |cut -b 6-" % (result['host'], ping_len)
+            ping_pc = os.popen(cmd).readlines()
+            if (len(ping_pc)):
+                ping_pc = int(float(ping_pc[0].strip()))
+            print("ping_test,localPing:", ping_pc)
+            result['ping_pc'] = ping_pc
 
-    if test_option['ping']:
-        ping_len="7" if isIP(result['host']) else "8"
-        cmd="ping -c 5 %s |grep 'time=' | awk '{print $%s}' |cut -b 6-"% (result['host'],ping_len)
-        ping_pc=os.popen(cmd).readlines()
-        if(len(ping_pc)):
-          ping_pc=int(float(ping_pc[0].strip()))
-        print("ping_test,localPing:",ping_pc)
-        result['ping_pc']=ping_pc
+        socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", int(port))
+        socket.socket = socks.socksocket
+        if test_option['network']:
+            ip = requests.get('http://api.ip.sb/ip', timeout=15).text.strip()
+            result['ip'] = ip
+            print("network_test,ip:", result['ip'])
 
-    socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", int(port))
-    socket.socket = socks.socksocket
-    if test_option['network']:
-        ip=requests.get('http://api.ip.sb/ip',timeout=15).text.strip()
-        result['ip']=ip
-        print("network_test,ip:",result['ip'])
-
-    if test_option['speed']:
-        import speedtest
-        s = speedtest.Speedtest()
-        s.get_best_server()
-        s.download()
-        s.upload()
-        s.results.share()
-        results_dict = s.results.dict()
-        result['ping']=results_dict['ping']
-        result['download']=round(results_dict['download'] / 1000.0 / 1000.0,2)
-        result['upload']=round(results_dict['upload'] / 1000.0 / 1000.0 ,2)
-        result['state']="Success"
-        result['ip']=results_dict['client']['ip']
-        print("speed_test,ping:%s,download:%s,upload:%s" % (result['ping'],result['download'],result['upload']))
-
-    if test_option['abc']:
-        # socket.socket=default_socket
-        # abc=abc_speed.test_speed(port,abc_timeout)
-        # abc=int(re.sub("\D", "", abc))
-        start = time.time()
-        r = requests.get('http://www.abchina.com/cn/', timeout=15)
-        if r.status_code == 200:
-            end = time.time()
-            print("end - start")
-            print(end - start)
-            print("abc_test:", (end - start)*1000)
-            t= end - start
-            result['abc']= int(round(t * 1000))
-            #print("abc_test,speed:",abc)
-            result['state']="Success"
-        else:
-            result['abc'] = 0
-            result['state'] = "Fail"
-
-        if test_option['icbc']:
-            # socket.socket=default_socket
-            # abc=abc_speed.test_speed(port,abc_timeout)
-            # abc=int(re.sub("\D", "", abc))
+        if test_option['speed']:
+            import speedtest
+            s = speedtest.Speedtest()
+            s.get_best_server()
+            s.download()
+            s.upload()
+            s.results.share()
+            results_dict = s.results.dict()
+            result['ping'] = results_dict['ping']
+            result['download'] = round(results_dict['download'] / 1000.0 / 1000.0, 2)
+            result['upload'] = round(results_dict['upload'] / 1000.0 / 1000.0, 2)
+            result['state'] = "Success"
+            result['ip'] = results_dict['client']['ip']
+            print("speed_test,ping:%s,download:%s,upload:%s" % (result['ping'], result['download'], result['upload']))
+        if test_option['abc']:
             start = time.time()
-            r = requests.get('http://www.icbc.com.cn/icbc/', timeout=15)
+            r = requests.get('http://www.abchina.com/cn/', timeout=15)
             if r.status_code == 200:
                 end = time.time()
                 print("end - start")
                 print(end - start)
-                print("icbc_test:", (end - start) * 1000)
+                print("abc_test:", (end - start) * 1000)
                 t = end - start
-                result['rcbc'] = int(round(t * 1000))
-                # print("abc_test,speed:",abc)
+                result['abc'] = int(round(t * 1000))
                 result['state'] = "Success"
             else:
-                result['icbc'] = 0
+                result['abc'] = 0
                 result['state'] = "Fail"
-    return result
 
-  except Exception as e:
-    print (e)
-    return result
+            if test_option['icbc']:
+                start = time.time()
+                r = requests.get('http://www.icbc.com.cn/icbc/', timeout=15)
+                if r.status_code == 200:
+                    end = time.time()
+                    print("end - start")
+                    print(end - start)
+                    print("icbc_test:", (end - start) * 1000)
+                    t = end - start
+                    result['rcbc'] = int(round(t * 1000))
+                    result['state'] = "Success"
+                else:
+                    result['icbc'] = 0
+                    result['state'] = "Fail"
+        return result
 
-url=input("url:")
-ssr_config=[]
-speed_result=[]
-headers = {'User-Agent':'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'}
-f=urllib.request.Request(url,headers=headers)
+    except Exception as e:
+        print(e)
+        return result
+
+
+url = input("url:")
+ssr_config = []
+speed_result = []
+headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'}
+f = urllib.request.Request(url, headers=headers)
 
 # ssr_subscribe = urllib.request.urlopen(f).read().decode('utf-8') #获取ssr订阅链接中数据
 # ssr_subscribe_decode = ParseSsr.base64_decode(ssr_subscribe)
@@ -352,26 +365,25 @@ f=urllib.request.Request(url,headers=headers)
 # ssr_subscribe_decode=ssr_subscribe_decode.split('\n')
 
 ssr_subscribe_decode = url.replace('\r', '')
-ssr_subscribe_decode = ssr_subscribe_decode.split(' ')
+ssr_subscribe_decode = ssr_subscribe_decode.split()
 
 for i in ssr_subscribe_decode:
-    if(i):
-        decdata=str(i[6:])#去掉"SSR://"
-        ssr_config.append(ParseSsr.parse(decdata))#解析"SSR://" 后边的base64的配置信息返回一个字典
+    if (i):
+        decdata = str(i[6:])  # 去掉"SSR://"
+        ssr_config.append(ParseSsr.parse(decdata))  # 解析"SSR://" 后边的base64的配置信息返回一个字典
 
 term_lines = os.get_terminal_size().lines
 term_col = os.get_terminal_size().columns
-ssr_config=curses.wrapper(SelectTable)
+ssr_config = curses.wrapper(SelectTable)
 
 curses.wrapper(TestOption)
-# print("ping:",test_option['ping'],"abc:",test_option['abc'],"speed:",test_option['speed'],"network:",test_option['network'])
 
-table=DrawTable()
+table = DrawTable()
 for s in ssr_config:
-  # print(s)
-  speed_result=connect_ssr(s)#通过解析后的配置信息链接节点进行测速
-  # print(speed_result)
-  table.append(
+    print(s)
+    speed_result = connect_ssr(s)  # 通过解析后的配置信息链接节点进行测速
+    print(speed_result)
+    table.append(
         name=speed_result['remarks'],
         ip=speed_result['ip'],
         localPing=speed_result['ping_pc'],
@@ -379,7 +391,15 @@ for s in ssr_config:
         upload=speed_result['upload'],
         download=speed_result['download'],
         abc=speed_result['abc'],
+        ccb=speed_result['ccb'],
         icbc=speed_result['icbc'],
-        network=speed_result['state']
+        cmb=speed_result['cmb'],
+        ceb=speed_result['ceb'],
+        boc=speed_result['boc'],
+        cmbc=speed_result['cmbc'],
+        network=speed_result['state'],
+        # abc=speed_result['abc']
     )
-  print(table.str())                                                                                                      
+
+
+print(table.str())

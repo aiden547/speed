@@ -12,7 +12,7 @@ from selenium.webdriver.common.by import By
 
 from selenium.common.exceptions import TimeoutException
 
-Deubg=False 
+Deubg=True
 
 def isAD(drive):
     try:
@@ -54,6 +54,7 @@ def yt_check(drive):
     except:
         if Deubg : print("not found flash")
         return False
+
 
 
 def test_speed(proxy_port,out_time=15):

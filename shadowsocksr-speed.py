@@ -156,7 +156,8 @@ def SelectTable(screen):
     # ssr_config=getss()
     for x in ssr_config:
         x['select']=1
-        select_table.append(select=x['select'],name=x['remarks'])
+        #select_table.append(select=x['select'],name=x['testremarks'])
+        select_table.append(select=x['select'], name='testremarks')
     # print(table)
     help_string1 = 'W(up) S(down)'  'A(select) D(right)'
     help_string2 = 'R(Reverse selection) Q(exit) '
@@ -219,12 +220,12 @@ def SelectTable(screen):
                     select_table=DrawSelectTable()
                     for x in ssr_config:
                         x['select']= not x['select']
-                        select_table.append(select=x['select'],name=x['remarks'])
+                        select_table.append(select=x['select'],name=x['testremarks'])
                 if key in [32, curses.KEY_RIGHT,curses.KEY_LEFT]:
                     ssr_config[ss_select-ss_select_x]['select']= not ssr_config[ss_select-ss_select_x]['select']
                     select_table=DrawSelectTable()
                     for x in ssr_config:
-                        select_table.append(select=x['select'],name=x['remarks'])
+                        select_table.append(select=x['select'],name=x['testremarks'])
         except (KeyboardInterrupt, SystemExit):
             sys.exit("Goodbye!")
 
@@ -239,7 +240,7 @@ def isIP(str):
 def connect_ssr(ssr):
   result={}
   result['host']=ssr['server']
-  result['remarks']=ssr['remarks']
+  result['testremarks']=ssr['testremarks']
   result['ip']=''
   result['download']=0
   result['upload']=0
@@ -260,7 +261,7 @@ def connect_ssr(ssr):
         cmd+="-g %s " % ssr['obfsparam']
     os.system(cmd + " -d stop")
     os.system(cmd + " -d start")
-    print(ssr['remarks']+"/"+ssr['server'])
+    print(ssr['testremarks']+"/"+ssr['server'])
 
     if test_option['ping']:
         ping_len="7" if isIP(result['host']) else "8"
@@ -341,7 +342,7 @@ for s in ssr_config:
   speed_result=connect_ssr(s)#通过解析后的配置信息链接节点进行测速
   # print(speed_result)
   table.append(
-        name=speed_result['remarks'],
+        name=speed_result['testremarks'],
         ip=speed_result['ip'],
         localPing=speed_result['ping_pc'],
         ping=speed_result['ping'],

@@ -322,8 +322,6 @@ def connect_ssr(ssr):
             r = requests.get('http://www.abchina.com/cn/', timeout=15)
             if r.status_code == 200:
                 end = time.time()
-                print("end - start")
-                print(end - start)
                 print("abc_test:", (end - start) * 1000)
                 t = end - start
                 result['abc'] = int(round(t * 1000))
@@ -337,11 +335,9 @@ def connect_ssr(ssr):
                 r = requests.get('http://www.icbc.com.cn/icbc/', timeout=15)
                 if r.status_code == 200:
                     end = time.time()
-                    print("end - start")
-                    print(end - start)
                     print("icbc_test:", (end - start) * 1000)
                     t = end - start
-                    result['rcbc'] = int(round(t * 1000))
+                    result['icbc'] = int(round(t * 1000))
                     result['state'] = "Success"
                 else:
                     result['icbc'] = 0

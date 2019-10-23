@@ -18,7 +18,7 @@ import socks
 default_socket = socket.socket
 
 test_option={}
-test_option ['ping']=test_option ['network']=test_option ['speed']= test_option ['abc']= test_option ['icbc']=False
+test_option ['ping']=test_option ['network']=test_option ['speed']= test_option ['abc']= test_option ['icbc']= test_option ['cmb']=False
 max_cols=0
 # 访问 abc 网页加载时间大于设置时间直接退出不进行测速.解决高延迟的节点加载网页太慢问题
 abc_timeout=10
@@ -160,7 +160,7 @@ def TestOption(screen):
                 if test_select[3]:
                     test_option['abc'] = True
                 if Option==0:
-                    test_option['abc'] = test_option['ping'] = test_option['speed'] = test_option['network'] = test_option['icbc'] =True
+                    test_option['abc'] = test_option['ping'] = test_option['speed'] = test_option['network'] = test_option['icbc'] = test_option['cmb'] =True
                 break
             if key in [32, curses.KEY_RIGHT, curses.KEY_LEFT]:
                 if (Option != 0):

@@ -4,9 +4,8 @@ import base64
 import os
 import time
 import requests
-import ParseSsr #https://www.jianshu.com/p/81b1632bea7f
+import ParseSsr  # https://www.jianshu.com/p/81b1632bea7f
 import re
-import abc_speed
 from prettytable import PrettyTable
 from colorama import init, Fore, Back, Style
 
@@ -56,7 +55,7 @@ class DrawTable(object):
         self.x = PrettyTable(header)
         self.x.reversesort = True
         self.x.sortby = "abc"
-        
+
     def append(self,*args,**kwargs):
         if(kwargs):
             color=colored()
@@ -107,21 +106,21 @@ def TestOption(screen):
     menu_len=len(menubar)
     while True:
         Option = 0 if Option<0 else Option
-        Option = menu_len -1 if Option > menu_len-1 else Option 
+        Option = menu_len -1 if Option > menu_len-1 else Option
         screen.clear()
         menuitem = selectitem = 0
-        for m in menubar:  
-            if Option == menuitem:  
-                screen.addstr(menuitem+2, 4,m , curses.A_REVERSE)  
-            else:  
-                screen.addstr(menuitem+2, 4, m)  
-            menuitem+=1  
+        for m in menubar:
+            if Option == menuitem:
+                screen.addstr(menuitem+2, 4,m , curses.A_REVERSE)
+            else:
+                screen.addstr(menuitem+2, 4, m)
+            menuitem+=1
         for s in test_select:
             if s:
-                screen.addstr(selectitem+3, 2,"*")
-            selectitem+=1
+                screen.addstr(selectitem + 3, 2, "*")
+            selectitem += 1
         screen.refresh()
-        
+
         key = screen.getch()
         if key in [curses.KEY_UP, ord('w'),
             curses.KEY_DOWN, ord('s'),
@@ -137,7 +136,7 @@ def TestOption(screen):
                 break
             if key == 10:
                 if test_select[0]:
-                    test_option['ping'] = True 
+                    test_option['ping'] = True
                 if test_select[1]:
                     test_option['network'] = True
                 if test_select[2]:
@@ -155,55 +154,56 @@ def SelectTable(screen):
     select_table=DrawSelectTable()
     # ssr_config=getss()
     for x in ssr_config:
-        x['select']=1
-        select_table.append(select=x['select'],name=x['remarks'])
+        x['select'] = 1
+        # select_table.append(select=x['select'],name=x['remarks'])
+        select_table.append(select=x['select'], name='testremarks')
     # print(table)
     help_string1 = 'W(up) S(down)'  'A(select) D(right)'
     help_string2 = 'R(Reverse selection) Q(exit) '
     help_string3 = 'Enter(finish)'
-    table_x=4
-    table_y=0
-    table_line=100
-    table_cols=max_cols+30
-    if(term_col<table_cols):
-        print ("[x] Resize the terminal window more than %s"  % table_cols )
-        print ("[x] Current size %dx%d" % (term_col, term_lines))
+    table_x = 4
+    table_y = 0
+    table_line = 100
+    table_cols = max_cols + 30
+    if (term_col < table_cols):
+        print("[x] Resize the terminal window more than %s" % table_cols)
+        print("[x] Current size %dx%d" % (term_col, term_lines))
         os._exit(0)
 
-    ss_select_x=3
-    ss_select=3
-    max_select=len(ssr_config)+3-1
-    max_line=term_lines -1 if term_lines -1 < max_select + 3 else max_select+2
+    ss_select_x = 3
+    ss_select = 3
+    max_select = len(ssr_config) + 3 - 1
+    max_line = term_lines - 1 if term_lines - 1 < max_select + 3 else max_select + 2
     # print(max_line)
     # while True:
     #   pass
     # print(len(ssr_config))
     while True:
         try:
-            if ss_select < ss_select_x : ss_select=ss_select_x 
-            if ss_select > max_select : ss_select=max_select
+            if ss_select < ss_select_x: ss_select = ss_select_x
+            if ss_select > max_select: ss_select = max_select
 
             screen.clear()
-            select_x=ss_select if ss_select < max_line else max_line -1 
-            screen.addstr(int(select_x),1,str("->"))
+            select_x = ss_select if ss_select < max_line else max_line - 1
+            screen.addstr(int(select_x), 1, str("->"))
             screen.refresh()
 
             tpad = curses.newpad(table_line, table_cols)
             tpad.scrollok(1)
             tpad.idlok(1)
             tpad.addstr(select_table.str())
-            if ss_select >= max_line :
-                move_x= ss_select - max_line +1 
-            else :
-                move_x= 0
-            tpad.refresh(move_x,0,table_y,table_x,max_line,table_cols)  
+            if ss_select >= max_line:
+                move_x = ss_select - max_line + 1
+            else:
+                move_x = 0
+            tpad.refresh(move_x, 0, table_y, table_x, max_line, table_cols)
             key = screen.getch()
             if key in [curses.KEY_UP, ord('w'),
-                curses.KEY_DOWN, ord('s'),
-                curses.KEY_LEFT, ord('a'),
-                curses.KEY_RIGHT, ord('d'),
-                ord('g'), ord('G'), ord('0'),
-                ord('r'), ord('q'),10,32]:
+                       curses.KEY_DOWN, ord('s'),
+                       curses.KEY_LEFT, ord('a'),
+                       curses.KEY_RIGHT, ord('d'),
+                       ord('g'), ord('G'), ord('0'),
+                       ord('r'), ord('q'), 10, 32]:
                 if key in [ord('w'), curses.KEY_UP]:
                     ss_select -= 1
                 if key in [ord('s'), curses.KEY_DOWN]:
@@ -213,18 +213,18 @@ def SelectTable(screen):
                 if key == ord('q'):
                     break
                 if key == 10:
-                    return ssr_config 
+                    return ssr_config
                     break
                 if key == ord('r'):
-                    select_table=DrawSelectTable()
+                    select_table = DrawSelectTable()
                     for x in ssr_config:
-                        x['select']= not x['select']
-                        select_table.append(select=x['select'],name=x['remarks'])
-                if key in [32, curses.KEY_RIGHT,curses.KEY_LEFT]:
-                    ssr_config[ss_select-ss_select_x]['select']= not ssr_config[ss_select-ss_select_x]['select']
-                    select_table=DrawSelectTable()
+                        x['select'] = not x['select']
+                        select_table.append(select=x['select'], name=x['remarks'])
+                if key in [32, curses.KEY_RIGHT, curses.KEY_LEFT]:
+                    ssr_config[ss_select - ss_select_x]['select'] = not ssr_config[ss_select - ss_select_x]['select']
+                    select_table = DrawSelectTable()
                     for x in ssr_config:
-                        select_table.append(select=x['select'],name=x['remarks'])   
+                        select_table.append(select=x['select'], name=x['remarks'])
         except (KeyboardInterrupt, SystemExit):
             sys.exit("Goodbye!")
 
@@ -310,12 +310,15 @@ url=input("url:")
 ssr_config=[]
 speed_result=[]
 headers = {'User-Agent':'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'}
-f=urllib.request.Request(url,headers=headers) 
+f=urllib.request.Request(url,headers=headers)
 
-ssr_subscribe = urllib.request.urlopen(f).read().decode('utf-8') #获取ssr订阅链接中数据
-ssr_subscribe_decode = ParseSsr.base64_decode(ssr_subscribe)
-ssr_subscribe_decode=ssr_subscribe_decode.replace('\r','')
-ssr_subscribe_decode=ssr_subscribe_decode.split('\n')
+# ssr_subscribe = urllib.request.urlopen(f).read().decode('utf-8') #获取ssr订阅链接中数据
+# ssr_subscribe_decode = ParseSsr.base64_decode(ssr_subscribe)
+# ssr_subscribe_decode=ssr_subscribe_decode.replace('\r','')
+# ssr_subscribe_decode=ssr_subscribe_decode.split('\n')
+
+ssr_subscribe_decode = url.replace('\r', '')
+ssr_subscribe_decode = ssr_subscribe_decode.split(' ')
 
 for i in ssr_subscribe_decode:
     if(i):

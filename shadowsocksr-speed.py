@@ -298,12 +298,19 @@ def connect_ssr(ssr):
         # socket.socket=default_socket
         # abc=abc_speed.test_speed(port,abc_timeout)
         # abc=int(re.sub("\D", "", abc))
-        abc = requests.get('http://www.abchina.com/cn/', timeout=15).text
-
-        print("abc_test:", abc)
-        #result['abc']=abc
-        #print("abc_test,speed:",abc)
-        result['state']="Success"
+        start = time.time()
+        r = requests.get('http://www.abchina.com/cn/', timeout=15)
+        if r.status_code == 200:
+            end = time.time()
+            print("end - start")
+            print(end - start)
+            print("abc_test:", end - start)
+            result['abc']=end - start
+            #print("abc_test,speed:",abc)
+            result['state']="Success"
+        else:
+            result['abc'] = 0
+            result['state'] = "Fail"
     return result
 
   except Exception as e:

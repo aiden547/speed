@@ -56,13 +56,13 @@ class DrawTable(object):
         self.x = PrettyTable(header)
         self.x.reversesort = True
         self.x.sortby = "abc"
-        self.x.sortby = "icbc"
+        #self.x.sortby = "icbc"
 
     def append(self,*args,**kwargs):
         if(kwargs):
             color=colored()
             kwargs['network'] = color.greed(kwargs['network']) if kwargs['network']=="Success" else color.red(kwargs['network'])
-            kwargs['network'] = color.greed(kwargs['network']) if kwargs['abc']!=1 else color.red("timeout")
+            kwargs['network'] = color.greed(kwargs['network']) if kwargs['abc']!=1 else color.red("timeout") if kwargs['abc']!=1 else color.red("timeout")
             # kwargs['abc'] = kwargs['abc'] if kwargs['abc'] !=1 else color.red("timeout")
             content=[
                 kwargs['name'],
@@ -104,7 +104,7 @@ class DrawSelectTable(object):
 
 def TestOption(screen):
     Option=0
-    menubar = ["1 - All Test", "2 - Ping", "3 - Network", "4 - Speed", "5 - Abc"]
+    menubar = ["1 - All Test", "2 - Ping", "3 - Network", "4 - Speed", "5 - Abc", "5 - Icbc"]
     test_select=[0,0,0,0]
     menu_len=len(menubar)
     while True:
@@ -249,7 +249,7 @@ def connect_ssr(ssr):
   result['ping']=0
   result['ping_pc']=0
   result['abc']=0
-  result['icbc'] = 0
+  result['icbc']=0
   result['state']="Fail"
   try:
     if not ssr['select']:

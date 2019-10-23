@@ -305,7 +305,8 @@ def connect_ssr(ssr):
             print("end - start")
             print(end - start)
             print("abc_test:", (end - start)*1000)
-            result['abc']= (end - start)*1000
+            t= end - start
+            result['abc']= int(round(t * 1000))
             #print("abc_test,speed:",abc)
             result['state']="Success"
         else:

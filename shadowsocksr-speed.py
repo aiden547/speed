@@ -371,7 +371,7 @@ def connect_ssr(ssr):
 
             if test_option['ceb']:
                 start = time.time()
-                r = requests.get('www.cebbank.com', timeout=15)
+                r = requests.get('http://www.cebbank.com', timeout=15)
                 if r.status_code == 200:
                     end = time.time()
                     print("ceb_test:", (end - start) * 1000)
